@@ -93,6 +93,16 @@ func:function()
 	
 		//adding ability for hives to be found in select lands
 		//since 'goods' is a array with dicts in it, we use the push function
+		/*
+	G.dict['jungle']
+	G.dict['forest']
+	G.dict['boreal forest']
+	G.dict['shrubland']
+	G.dict['prairie']
+	G.dict['savanna']
+	G.dict['tundra']
+		*/
+		
 	G.getDict('jungle').goods.push({type:'hive',amount:3});
 	G.getDict('forest').goods.push({type:'hive',amount:3});
 	G.getDict('boreal forest').goods.push({type:'hive',amount:1.5});
@@ -100,16 +110,17 @@ func:function()
 	G.getDict('prairie').goods.push({type:'hive',chance:0.2,min:0.1,max:0.3});
 	G.getDict('savanna').goods.push({type:'hive',chance:0.3,min:0.1,max:0.3});
 	G.getDict('tundra').goods.push({type:'hive',chance:0.08,min:0.1,max:0.3});
+		
 		//adding new modes to artisans so they can make drink from fruit, herb, or honey
 		//modes are just dicts within dicts so this works.
-	G.getDict('artisan').modes['drink fruit']={name:'Make alcohol from fruit',desc:'Turn 5 [fruit]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
-	G.getDict('artisan').modes['drink herb']={name:'Make alcohol from herb',desc:'Turn 5 [herb]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
-	G.getDict('artisan').modes['drink honey']={name:'Make alcohol from honey',desc:'Turn 5 [honey]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
+	G.getDict('artisan').modes['beer']={name:'Make alcohol from herb',desc:'Turn 5 [herb]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
+	G.getDict('artisan').modes['wine']={name:'Make alcohol from fruit',desc:'Turn 5 [fruit]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
+	G.getDict('artisan').modes['mead']={name:'Make alcohol from honey',desc:'Turn 5 [honey]s & 1 [water] into 1 [drink].',req:{'fermentation':true,},use:{'stone tools':1}};
 		//adding a new effect to artisans that handles the actual hot sauce preparing and is only active when the unit has the mode "hot sauce"
 		//since 'effects' and 'effectsOff' are arrays with dicts in it, we use the push function
-	G.getDict('artisan').effects.push({type:'convert',from:{'fruit':5,},into:{'drink':1},every:3,mode:'drink fruit'});
-	G.getDict('artisan').effects.push({type:'convert',from:{'herb':5,},into:{'drink':1},every:3,mode:'drink herb'});
-	G.getDict('artisan').effects.push({type:'convert',from:{'honey':5,},into:{'drink':1},every:3,mode:'drink honey'});
+	G.getDict('artisan').effects.push({type:'convert',from:{'fruit':5,},into:{'drink':1},every:3,mode:'wine'});
+	G.getDict('artisan').effects.push({type:'convert',from:{'herb':5,},into:{'drink':1},every:3,mode:'beer'});
+	G.getDict('artisan').effects.push({type:'convert',from:{'honey':5,},into:{'drink':1},every:3,mode:'mead'});
 		//TODO: add tech to make brewing possible for artisans
 	
 	/*=====================================================================================
@@ -141,8 +152,8 @@ func:function()
 	POLICIES
 	=======================================================================================*/
 	new G.Policy({
-		name:'eat herb',
-		desc:'Your people will eat or not eat [herb].<br>Your people <i>could start to starve</i>.',
+		name:'eat herbs',
+		desc:'Your people will eat or not eat [herb]s.<br>Your people <i>could start to starve</i>.',
 		icon:[6,12,4,6],
 		cost:{'influence':1},
 		startMode:'on',
