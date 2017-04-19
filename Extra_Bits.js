@@ -4,13 +4,50 @@ author:'ETB',
 desc:'Miscellaneous extra\'s, such as flavor Text.',
 engineVersion:1,
 requires:['Default dataset*'],
-sheets:{'extraSheet':'img/sprites.png'},//custom stylesheet (note : broken in IE and Edge for the time being)
+// sheets:{'extraSheet':'img/sprites.png'},//custom stylesheet (note : broken in IE and Edge for the time being)
 func:function()
 {
+
+G.RuinTheFun; // for Debug purposes only. Comment/delete when commiting.
 
 	/*=====================================================================================
 	RESOURCES
 	=======================================================================================*/
+	
+	// pushing new elements into current res catagories
+	G.getRes('demog').base.push('drunk');
+	// G.getRes('food').side.push('water storage');
+	// G.getRes('food').side.push('archaic food resources','basic food resources','advanced food resources');
+
+	/*
+	new G.Res({
+		name:'water storage',
+		desc:'Each [water storage] unit slows down decay for one [water] unit.//The number on the left is how much water storage is occupied, while the number on the right is how much you have in total.',
+		icon:[12,5],
+		tick:function(me,tick)
+		{
+			var amount=0;
+			amount+=G.getRes('basket').amount*10;
+			amount+=G.getRes('pot').amount*25;
+			amount+=G.getRes('ice').amount;
+			amount+=G.getRes('added food storage').amount;
+			me.amount=amount;
+		},
+		getDisplayAmount:function()
+		{
+			return B(Math.min(this.displayedAmount,G.getRes('food').displayedAmount))+'<wbr>/'+B(this.displayedAmount);
+		},
+	});
+
+	new G.Res({
+		name:'added water storage',
+		//water storage added by buildings
+		desc:'',
+		icon:[12,5],
+		hidden:true,
+	});
+	
+	*/
 	
 	new G.Res({
 		name:'drunk',
@@ -19,31 +56,36 @@ func:function()
 		icon:[0,0], // TODO: drunk person sprite
 		tick:function(me,tick)
 		{
-			// Unfinished but should work
+			// should work
 			if (G.checkPolicy('disable aging')=='off')
 			{
 				var toChange=0.00003;
-				if (G.getRes('health').amount<0)
+				if (G.getRes('alcohol').amount>0)
 				{
-					toChange*=(1+Math.abs(G.getRes('health').amount/me.amount));
-				}
-				if (toChange>0)
-				{
-					if (me.amount<=15) toChange*=0.5;
-					if (G.checkPolicy('flower rituals')=='on') toChange*=0.6;
-					if (G.checkPolicy('fertility rituals')=='on') toChange*=0.6;
-					if (G.checkPolicy('harvest rituals')=='on') toChange*=0.6;
-					if (G.checkPolicy('wisdom rituals')=='on') toChange*=0.6;
-					if (G.checkPolicy('population control')!=='normal') toChange*=0.6;
-					var changed=0;
-					var weights={'baby':0,'child':0,'adult':1,'elder':1};
-					// if (G.checkPolicy('child workforce')=='on') weights['child']*=2;
-					if (G.checkPolicy('elder workforce')=='on') weights['elder']*=2;
-					// if (G.year<5) weights['adult']=0;//adults don't fall sick the first 5 years
-					for (var i in weights)
-					{var n=G.lose(i,randomFloor(Math.random()*G.getRes(i).amount*toChange*weights[i]),'-');changed+=n;}
-					G.gain('drunk',changed,'-');
-					if (changed>0) G.Message({type:'bad',mergeId:'fellDrunk',textFunc:function(args){return B(args.n)+' '+(args.n==1?'person':'people')+' got drunk.';},args:{n:changed},icon:[0,0]});
+					/*
+					if (G.getRes('health').amount<0)
+					{
+						toChange*=(1+Math.abs(G.getRes('health').amount/me.amount));
+					}
+					*/
+					if (toChange>0)
+					{
+						if (me.amount<=15) toChange*=0.5;
+						var changed=0;
+						var weights={'baby':0,'child':0,'adult':1,'elder':1};
+						
+						if (G.checkPolicy('flower rituals')=='on') toChange*=0.3;
+						if (G.checkPolicy('fertility rituals')=='on') toChange*=0.3;
+						if (G.checkPolicy('harvest rituals')=='on') toChange*=0.3;
+						if (G.checkPolicy('wisdom rituals')=='on') toChange*=0.3;
+						if (G.checkPolicy('population control')!=='normal') toChange*=0.3;
+						if (G.checkPolicy('elder workforce')=='on') weights['elder']*=2;
+						
+						for (var i in weights)
+						{var n=G.lose(i,randomFloor(Math.random()*G.getRes(i).amount*toChange*weights[i]),'-');changed+=n;}
+						G.gain('drunk',changed,'-');
+						if (changed>0) G.Message({type:'bad',mergeId:'fellDrunk',textFunc:function(args){return B(args.n)+' '+(args.n==1?'person':'people')+' got drunk.';},args:{n:changed},icon:[0,0]});
+					}
 				}
 				
 					var drunkHealing=0.01;
@@ -59,7 +101,6 @@ func:function()
 					G.gain('happiness',-changed*15*deathUnhappinessMult,'death');
 					G.getRes('died this year').amount+=changed;
 					if (changed>0) G.Message({type:'bad',mergeId:'diedDrunk',textFunc:function(args){return B(args.n)+' '+(args.n==1?'person':'people')+' died from alcohol poisoning.';},args:{n:changed},icon:[5,4]});
-
 			}
 		}
 	});
@@ -70,58 +111,88 @@ func:function()
 		desc:'A beverage made from the fermentation of certain [food].//Contains beer, wine, and mead.',
 		icon:[0,0], // TODO: Sprite
 		turnToByContext:{
-			'drinking':{'health':0.01,'happiness':0.3},
+			'drinking':{'health':0.01,'happiness':0.06},
 			'decay':{'muddy water':0.05,'spoiled food':0.05},
 			},
 		partOf:'food',
 		category:'food',
 	});
+	
 	new G.Res({
 		name:'honey',
 		desc:'A sweet, sticky substance that comes from some [bugs,insects].',
 		icon:[0,0], // TODO: honey sprite
 		turnToByContext:{
-			'drinking':{'health':0.03,'happiness':0.03},
+			'eating':{'health':0.03,'happiness':0.03},
 			'decay':{'spoiled food':0.05},
 			},
 		partOf:'food',
 		category:'food',
 	});
+	
 	new G.Res({
 		name:'vegetable',
-		desc:'.',
+		desc:'TODO',
 		icon:[0,0], // TODO: vegetable sprite
 		turnToByContext:{
-			'drinking':{'health':0.03,'happiness':0.01},
+			'eating':{'health':0.03,'happiness':0.01},
 			'decay':{'spoiled food':0.05},
 			},
 		partOf:'food',
 		category:'food',
 	});
+	
 	new G.Res({
 		name:'grain',
-		desc:'.',
+		desc:'TODO',
 		icon:[0,0], // TODO: grain sprite
 		turnToByContext:{
-			'drinking':{'health':0.01,'happiness':0.01},
+			'eat':{'health':0.01,'happiness':0.01},
 			'decay':{'spoiled food':0.05},
 			},
 		partOf:'food',
 		category:'food',
 	});
-	/*
+
+/*
 	new G.Res({
-		name:'seed',
+		name:'archaic food resources',
 		desc:'.',
-		icon:[0,0], // TODO: seed sprite
+		icon:[0,0],
 		turnToByContext:{
-			'drinking':{'health':0.01,'happiness':0.01},
-			'decay':{'alcohol':0.95,'spoiled food':0.05},
+			'eating':{'health':0.03,'happiness':0.01},
+			'decay':{'spoiled food':0.05},
 			},
 		partOf:'food',
 		category:'food',
 	});
-	*/
+
+	new G.Res({
+		name:'basic food resources',
+		desc:'.',
+		icon:[0,0],
+		turnToByContext:{
+			'eating':{'health':0.03,'happiness':0.01},
+			'decay':{'spoiled food':0.05},
+			},
+		partOf:'food',
+		category:'food',
+	});
+
+	new G.Res({
+		name:'luxury food resources',
+		desc:'.',
+		icon:[0,0],
+		turnToByContext:{
+			'eating':{'health':0.03,'happiness':0.01},
+			'decay':{'spoiled food':0.05},
+			},
+		partOf:'food',
+		category:'food',
+	});
+
+*/
+
 	new G.Goods({
 		name:'hive',
 		desc:'[hive,Insect Hives] can be foraged for [honey] and [bugs,insects]s.',
@@ -133,6 +204,39 @@ func:function()
 		mult:10,
 	});
 	
+	new G.Goods({
+		name:'wild wheat',
+		desc:'[hive,Insect Hives] can be foraged for [honey] and [bugs,insects]s.',
+		icon:[0,0], // TODO: hive sprite
+		res:{
+			'gather':{'grain':3},
+		},
+		affectedBy:['scarce forageables'],
+		mult:10,
+	});
+
+	new G.Goods({
+		name:'vegetable bushes',
+		desc:'[hive,Insect Hives] can be foraged for [honey] and [bugs,insects]s.',
+		icon:[0,0], // TODO: hive sprite
+		res:{
+			'gather':{'vegetable':3},
+		},
+		affectedBy:['scarce forageables'],
+		mult:10,
+	});
+
+	new G.Goods({
+		name:'seaweed',
+		desc:'[hive,Insect Hives] can be foraged for [honey] and [bugs,insects]s.',
+		icon:[0,0], // TODO: hive sprite
+		res:{
+			'gather':{'vegetable':3},
+		},
+		affectedBy:['scarce forageables'],
+		mult:10,
+	});
+
 	G.getDict('grass').res['gather']['vegetable']=1;
 	G.getDict('grass').res['gather']['grain']=1;
 	
@@ -171,17 +275,17 @@ func:function()
 		'Waves push an unknown object onto the shore.',
 	];
 	
-	/*=====================================================================================
-	FUNCTIONS
-	=======================================================================================*/
-	
 	var mergedLines = G.props['new day lines'].concat(extraLines);
 	G.props['new day lines'] = mergedLines;
 	shuffle(G.props['new day lines']);
 	
+	/*=====================================================================================
+	FUNCTIONS
+	=======================================================================================*/
+	
 	/* For the future.
 	
-	G.funcs['new game blurb']=function()
+	G.funcs['new game blurb']=function() // Part of the NEW GAME launch box at the very begining of the game
 	{
 		var str=
 		'<b>Your tribe :</b><div class="thingBox">'+
@@ -196,7 +300,7 @@ func:function()
 		return str;
 	}
 
-	G.funcs['new game']=function()
+	G.funcs['new game']=function() // Message you get when you start a new game
 	{
 		var str='Your name is '+G.getName('ruler')+''+(G.getName('ruler').toLowerCase()=='orteil'?' <i>(but that\'s not you, is it?)</i>':'')+', ruler of '+G.getName('civ')+'. Your tribe is primitive, but full of hope.<br>The first year of your legacy has begun. May it stand the test of time.';
 		G.Message({type:'important tall',text:str,icon:[0,3]});
@@ -224,6 +328,25 @@ func:function()
 		category:'food',
 	});
 	
+	new G.Policy({ // Incomplete
+		name:'alcohol control',
+		desc:'Set rules on how much your people are allowed to drink.',
+		icon:[0,0,4,6],
+		cost:{'influence':3},
+		startMode:'normal',
+		req:{'rules of food':true,'fermentation':true},
+		modes:{
+			'forbidden':{name:'Forbidden',desc:'Your people are under prohibition.//You population will get angry.'},
+			'limited':{name:'Limited',desc:'Your people are allowed minimal drink.//Your population will get less drunk but also less happiness.'},
+			'sufficient':{name:'Sufficient',desc:'Your people drink till satisfied.'},
+			'plentiful':{name:'Plentiful',desc:'Your people drink without restriction.'},
+		},
+		effects:[ 
+		//add effects for different modes
+		],
+		category:'food',
+	});
+
 	/*=====================================================================================
 	TECH & TRAIT
 	=======================================================================================*/
@@ -251,3 +374,15 @@ func:function()
 
 }
 });
+
+	/*=====================================================================================
+	WONDERS & ACHIEVEMENTS
+	=======================================================================================*/
+	
+	// Tougher Mausoleum Achiev
+	
+/*
+
+	var MauCost = G.getCostString('mausoleum')
+	
+*/
